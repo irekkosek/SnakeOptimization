@@ -310,7 +310,8 @@
                     food_position = bestFemale.ToArray();
                 }
             }
-            return food_position; // best snake
+            XBest = food_position;
+            return XBest; // best snake
         }
     }
 }
