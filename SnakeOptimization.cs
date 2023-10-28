@@ -81,10 +81,18 @@
             double bestFemale_fitValue = female_fitness.Min();
             int bestFemale_fitValue_index = Array.IndexOf(female_fitness, bestFemale_fitValue);
             double[] bestFemale = Xf[bestFemale_fitValue_index].ToArray();
-            
 
-           double[][] male_positions = new double[Nm][];
-           double[][] female_positions = new double[Nf][];
+
+            double[][] male_positions = new double[Nm][];
+            for (int i = 0; i < Nm; i++)
+            {
+                male_positions[i] = new double[dim];
+            }
+            double[][] female_positions = new double[Nf][];
+            for (int i = 0; i < Nf; i++)
+            {
+                female_positions[i] = new double[dim];
+            }
 
             for (int t = 1; t <= T; t++)
             {

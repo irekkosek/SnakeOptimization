@@ -17,14 +17,14 @@ namespace SnakeOptimization
             double value = result.Item2;
             int number = result.Item3;
 
-            Console.WriteLine("Array:");
+            Console.WriteLine("Best snake: {");
             foreach (double item in array)
             {
                 Console.WriteLine(item);
             }
-
-            Console.WriteLine("Value: " + value);
-            Console.WriteLine("Number: " + number);
+            Console.WriteLine("}");
+            Console.WriteLine("Best snake fit value: " + value);
+            Console.WriteLine("Number of objective function executions: " + number);
         }
         public static double rastriginFunction(params double[] X)
         {
