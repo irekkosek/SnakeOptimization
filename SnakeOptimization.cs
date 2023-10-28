@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SnakeOptimization
+﻿namespace SnakeOptimization
 {
     delegate double Funkcja(params double[] x);
 
@@ -37,6 +31,8 @@ namespace SnakeOptimization
         public double[] Solve()
         {
             Random rnd = new Random();
+
+            // constant variables
             double[] vecflag = { 1, -1 };
             double treshold1 = 0.25;
             double treshold2 = 0.6;
@@ -46,9 +42,8 @@ namespace SnakeOptimization
 
             double[][] X = new double[N][];
             double[] fitness = new double[N];
-            double bestv;
-            int bestp;
 
+            // initialize snake swarm and calculate fitness of each snake by objective function
             for (int i = 0; i < N; i++)
             {
                 X[i] = new double[dim];
@@ -59,33 +54,42 @@ namespace SnakeOptimization
                 fitness[i] = funkcja(X[i]);
             }
 
-            bestv = fitness.Min();
-            bestp = Array.IndexOf(fitness, bestv);
-            XBest = X[bestp].ToArray();
-
+            // Divide the swarm
             int Nm = N / 2;
             int Nf = N - Nm;
-            double[][] Xm = X.Take(Nm).ToArray();
-            double[][] Xf = X.Skip(Nm).ToArray();
-            double[] fitnessm = fitness.Take(Nm).ToArray();
-            double[] fitnessf = fitness.Skip(Nm).ToArray();
+            double[][] Xm = X.Take(Nm).ToArray(); // males
+            double[][] Xf = X.Skip(Nm).ToArray(); // females
+            double[] male_fitness = fitness.Take(Nm).ToArray();
+            double[] female_fitness = fitness.Skip(Nm).ToArray();
 
-            double mbestv = fitnessm.Min();
-            int mbestp = Array.IndexOf(fitnessm, mbestv);
-            double[] Xbestm = Xm[mbestp].ToArray();
+            // Get best male
+            double bestMale_fitValue = male_fitness.Min(); // get minimum value from fitness array
+            int bestMale_fitValue_index = Array.IndexOf(male_fitness, bestMale_fitValue); // get index of this element
+            double[] bestMale = Xm[bestMale_fitValue_index].ToArray(); // find vector in the male matrix on this index
 
-            double fbestv = fitnessf.Min();
-            int fbestp = Array.IndexOf(fitnessf, fbestv);
-            double[] Xbestf = Xf[fbestp].ToArray();
+            // Get best female (same as male)
+            double bestFemale_fitValue = female_fitness.Min();
+            int bestFemale_fitValue_index = Array.IndexOf(female_fitness, bestFemale_fitValue);
+            double[] bestFemale = Xf[bestFemale_fitValue_index].ToArray();
 
-            double[][] Xnewm = new double[Nm][];
-            double[][] Xnewf = new double[Nf][];
-            double[] gbest = new double[T];
-            double[] vbest = new double[T];
+
+            // Get food position (Ffood)
+            double bestSnake = fitness.Min();
+            int bestSnake_index = Array.IndexOf(fitness, bestSnake);
+            double[] food_position = X[bestSnake_index].ToArray();
+
+
+           double[][] male_positions = new double[Nm][];
+           double[][] female_positions = new double[Nf][];
+           double[] gbest = new double[T];
+           double[] vbest = new double[T];
+
 
             for (int t = 1; t <= T; t++)
             {
+                // Calculate temperature
                 double Temp = Math.Exp(-(double)t / T);
+                // Calculate food quantity
                 double Q = c1 * Math.Exp(((double)t - T) / T);
                 if (Q > 1)
                 {
@@ -95,29 +99,33 @@ namespace SnakeOptimization
                 if (Q < treshold1)
                 {
                     // Exploration phase (no food)
+                    // Every snake searches for food and goes to random position
+
+                    // For males
                     for (int i = 0; i < Nm; i++)
                     {
                         int randmid = (int)(Nm * rnd.NextDouble());
-                        double[] Xrandm = Xm[randmid].ToArray();
+                        double[] randomMale_position = Xm[randmid].ToArray();
                         int flagid = (int)(2 * rnd.NextDouble());
                         double flag = vecflag[flagid];
-                        double Am = Math.Exp(-fitnessm[randmid] / (fitnessm[i] + double.Epsilon));
+                        double Am = Math.Exp(-male_fitness[randmid] / (male_fitness[i] + double.Epsilon));
                         for (int j = 0; j < dim; j++)
                         {
-                            Xnewm[i][j] = Xrandm[j] + flag * c2 * Am * ((xmax[j] - xmin[j]) * random.NextDouble() + xmin[j]);
+                            male_positions[i][j] = randomMale_position[j] + flag * c2 * Am * ((xmax[j] - xmin[j]) * rnd.NextDouble() + xmin[j]);
                         }
                     }
 
+                    // For females
                     for (int i = 0; i < Nf; i++)
                     {
                         int randfid = (int)(Nf * rnd.NextDouble());
-                        double[] Xrandf = Xf[randfid].ToArray();
+                        double[] randomFemale_position = Xf[randfid].ToArray();
                         int flagid = (int)(2 * rnd.NextDouble());
                         double flag = vecflag[flagid];
-                        double Af = Math.Exp(-fitnessf[randfid] / (fitnessf[i] + double.Epsilon));
+                        double Af = Math.Exp(-female_fitness[randfid] / (female_fitness[i] + double.Epsilon));
                         for (int j = 0; j < dim; j++)
                         {
-                            Xnewf[i][j] = Xrandf[j] + flag * c2 * Af * ((xmax[j] - xmin[j]) * random.NextDouble() + xmin[j]);
+                            female_positions[i][j] = randomFemale_position[j] + flag * c2 * Af * ((xmax[j] - xmin[j]) * rnd.NextDouble() + xmin[j]);
                         }
                     }
                 }
@@ -127,170 +135,182 @@ namespace SnakeOptimization
                     if (Temp > treshold2)
                     {
                         // Hot
+                        // Snakes go to the food
+
+                        // For males
                         for (int i = 0; i < Nm; i++)
                         {
                             int flagid = (int)(2 * rnd.NextDouble());
                             double flag = vecflag[flagid];
                             for (int j = 0; j < dim; j++)
                             {
-                                Xnewm[i][j] = Xfood[j] + flag * c3 * Temp * random.NextDouble() * (Xfood[j] - Xm[i][j]);
+                                male_positions[i][j] = food_position[j] + flag * c3 * Temp * rnd.NextDouble() * (food_position[j] - Xm[i][j]);
                             }
                         }
 
-                        for (int i = 0; i < nf; i++)
+                        // For females
+                        for (int i = 0; i < Nf; i++)
                         {
-                            int flagid = (int)(2 * random.NextDouble());
+                            int flagid = (int)(2 * rnd.NextDouble());
                             double flag = vecflag[flagid];
                             for (int j = 0; j < dim; j++)
                             {
-                                Xnewf[i][j] = Xfood[j] + flag * c3 * Temp * random.NextDouble() * (Xfood[j] - Xf[i][j]);
+                                female_positions[i][j] = food_position[j] + flag * c3 * Temp * rnd.NextDouble() * (food_position[j] - Xf[i][j]);
                             }
                         }
                     }
                     else
                     {
-                        if (random.NextDouble() > 0.6)
+                        if (rnd.NextDouble() > 0.6)
                         {
                             // Fight
-                            for (int i = 0; i < nm; i++)
+
+                            // For males
+                            for (int i = 0; i < Nm; i++)
                             {
-                                double fm = Math.Exp(-fbestv / (fitnessm[i] + double.Epsilon));
+                                double fm = Math.Exp(-bestFemale_fitValue / (male_fitness[i] + double.Epsilon));
                                 for (int j = 0; j < dim; j++)
                                 {
-                                    Xnewm[i][j] = Xm[i][j] + c3 * fm * random.NextDouble() * (Q * Xbestf[j] - Xm[i][j]);
+                                    male_positions[i][j] = Xm[i][j] + c3 * fm * rnd.NextDouble() * (Q * bestFemale[j] - Xm[i][j]);
                                 }
                             }
 
-                            for (int i = 0; i < nf; i++)
+                            // For females
+                            for (int i = 0; i < Nf; i++)
                             {
-                                double ff = Math.Exp(-mbestv / (fitnessf[i] + double.Epsilon));
+                                double ff = Math.Exp(-bestMale_fitValue / (female_fitness[i] + double.Epsilon));
                                 for (int j = 0; j < dim; j++)
                                 {
-                                    Xnewf[i][j] = Xf[i][j] + c3 * ff * random.NextDouble() * (Q * Xbestm[j] - Xf[i][j]);
+                                    female_positions[i][j] = Xf[i][j] + c3 * ff * rnd.NextDouble() * (Q * bestMale[j] - Xf[i][j]);
                                 }
                             }
                         }
                         else
                         {
                             // Mating
-                            for (int i = 0; i < nm; i++)
+
+                            // For males
+                            for (int i = 0; i < Nm; i++)
                             {
-                                double mm = Math.Exp(-fitnessf[i] / (fitnessm[i] + double.Epsilon));
+                                double mm = Math.Exp(-female_fitness[i] / (male_fitness[i] + double.Epsilon));
                                 for (int j = 0; j < dim; j++)
                                 {
-                                    Xnewm[i][j] = Xm[i][j] + c3 * mm * random.NextDouble() * (Q * Xf[i][j] - Xm[i][j]);
+                                    male_positions[i][j] = Xm[i][j] + c3 * mm * rnd.NextDouble() * (Q * Xf[i][j] - Xm[i][j]);
                                 }
                             }
 
-                            for (int i = 0; i < nf; i++)
+                            // For females
+                            for (int i = 0; i < Nf; i++)
                             {
-                                double mf = Math.Exp(-fitnessm[i] / (fitnessf[i] + double.Epsilon));
+                                double mf = Math.Exp(-male_fitness[i] / (female_fitness[i] + double.Epsilon));
                                 for (int j = 0; j < dim; j++)
                                 {
-                                    Xnewf[i][j] = Xf[i][j] + c3 * mf * random.NextDouble() * (Q * Xm[i][j] - Xf[i][j]);
+                                    female_positions[i][j] = Xf[i][j] + c3 * mf * rnd.NextDouble() * (Q * Xm[i][j] - Xf[i][j]);
                                 }
                             }
 
-                            int flagid = (int)(2 * random.NextDouble());
+                            // Randomize if egg hatches
+                            int flagid = (int)(2 * rnd.NextDouble());
                             double egg = vecflag[flagid];
+
+                            // Check if egg is there or not
                             if (egg == 1)
                             {
-                                int mworstp = Array.IndexOf(fitnessm, fitnessm.Max());
-                                int fworstp = Array.IndexOf(fitnessf, fitnessf.Max());
+                                // Get worst male and female
+                                int worstMale_fitValue_index = Array.IndexOf(male_fitness, male_fitness.Max());
+                                int worstFemale_fitValue_index = Array.IndexOf(female_fitness, female_fitness.Max());
+                                // Replace them
                                 for (int i = 0; i < dim; i++)
                                 {
-                                    Xnewm[mworstp][i] = xmin[i] + random.NextDouble() * (xmax[i] - xmin[i]);
-                                    Xnewf[fworstp][i] = xmin[i] + random.NextDouble() * (xmax[i] - xmin[i]);
+                                    male_positions[worstMale_fitValue_index][i] = xmin[i] + rnd.NextDouble() * (xmax[i] - xmin[i]);
+                                    female_positions[worstFemale_fitValue_index][i] = xmin[i] + rnd.NextDouble() * (xmax[i] - xmin[i]);
                                 }
                             }
                         }
                     }
                 }
 
-                for (int i = 0; i < nm; i++)
+                for (int i = 0; i < Nm; i++)
                 {
                     for (int j = 0; j < dim; j++)
                     {
-                        if (Xnewm[i][j] > xmax[j])
+                        if (male_positions[i][j] > xmax[j])
                         {
-                            Xnewm[i][j] = xmax[j];
+                            male_positions[i][j] = xmax[j];
                         }
-                        if (Xnewm[i][j] < xmin[j])
+                        if (male_positions[i][j] < xmin[j])
                         {
-                            Xnewm[i][j] = xmin[j];
+                            male_positions[i][j] = xmin[j];
                         }
                     }
 
-                    double y = fobj(Xnewm[i]);
-                    iFobj++;
-                    if (y < fitnessm[i])
+                    double y = funkcja(male_positions[i]);
+                    if (y < male_fitness[i])
                     {
-                        fitnessm[i] = y;
-                        Xm[i] = Xnewm[i].ToArray();
+                        male_fitness[i] = y;
+                        Xm[i] = male_positions[i].ToArray();
                     }
                 }
 
-                double Mbestv = fitnessm.Min();
-                int Mbestp = Array.IndexOf(fitnessm, Mbestv);
+                double bestMatingMale_fitValue = male_fitness.Min();
+                int bestMatingMale_fitValue_index = Array.IndexOf(male_fitness, bestMatingMale_fitValue);
 
-                for (int i = 0; i < nf; i++)
+                for (int i = 0; i < Nf; i++)
                 {
                     for (int j = 0; j < dim; j++)
                     {
-                        if (Xnewf[i][j] > xmax[j])
+                        if (female_positions[i][j] > xmax[j])
                         {
-                            Xnewf[i][j] = xmax[j];
+                            female_positions[i][j] = xmax[j];
                         }
-                        if (Xnewf[i][j] < xmin[j])
+                        if (female_positions[i][j] < xmin[j])
                         {
-                            Xnewf[i][j] = xmin[j];
+                            female_positions[i][j] = xmin[j];
                         }
                     }
 
-                    double y = fobj(Xnewf[i]);
-                    iFobj++;
-                    if (y < fitnessf[i])
+                    double y = funkcja(female_positions[i]);
+                    if (y < female_fitness[i])
                     {
-                        fitnessf[i] = y;
-                        Xf[i] = Xnewf[i].ToArray();
+                        female_fitness[i] = y;
+                        Xf[i] = female_positions[i].ToArray();
                     }
                 }
 
-                double Fbestv = fitnessf.Min();
-                int Fbestp = Array.IndexOf(fitnessf, Fbestv);
+                double bestMatingFemale_fitValue = female_fitness.Min();
+                int bestMatingFemale_fitValue_index = Array.IndexOf(female_fitness, bestMatingFemale_fitValue);
 
-                if (Mbestv < mbestv)
+                if (bestMatingMale_fitValue < bestMale_fitValue)
                 {
-                    Xbestm = Xm[Mbestp].ToArray();
-                    mbestv = Mbestv;
+                    bestMale = Xm[bestMatingMale_fitValue_index].ToArray();
+                    bestMale_fitValue = bestMatingMale_fitValue;
                 }
 
-                if (Fbestv < fbestv)
+                if (bestMatingFemale_fitValue < bestFemale_fitValue)
                 {
-                    Xbestf = Xf[Fbestp].ToArray();
-                    fbestv = Fbestv;
+                    bestFemale = Xf[bestMatingFemale_fitValue_index].ToArray();
+                    bestFemale_fitValue = bestMatingFemale_fitValue;
                 }
 
-                if (Mbestv < Fbestv)
+                if (bestMatingMale_fitValue < bestMatingFemale_fitValue)
                 {
-                    gbest[t] = Mbestv;
-                    vbest[t] = Xm[Mbestp].ToArray();
+                    gbest[t] = bestMatingMale_fitValue;
                 }
                 else
                 {
-                    gbest[t] = Fbestv;
-                    vbest[t] = Xf[Fbestp].ToArray();
+                    gbest[t] = bestMatingFemale_fitValue;
                 }
 
-                if (mbestv < fbestv)
+                if (bestMale_fitValue < bestFemale_fitValue)
                 {
-                    Xfood = Xbestm.ToArray();
+                    food_position = bestMale.ToArray();
                 }
                 else
                 {
-                    Xfood = Xbestf.ToArray();
+                    food_position = bestFemale.ToArray();
                 }
             }
+            return food_position; // best snake
         }
     }
 }
