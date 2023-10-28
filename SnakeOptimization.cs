@@ -1,6 +1,6 @@
 ﻿namespace SnakeOptimization
 {
-    delegate double Funkcja(params double[] x);
+    public delegate double Funkcja(params double[] x);
 
     class SnakeOptimization : IOptimizationAlgorithm
     {
@@ -24,10 +24,14 @@
             this.dim = _dim;
             this.xmin = _xmin;
             this.xmax = _xmax;
+            this.Name = "Snake Optimization";
 
             this.XBest = new double[dim];
         }
-
+        public string Result()
+        {   //TODO: add {Xfood, fval, gbest, vbest, iFobj} and other values from the assignment table
+            return "TODO";
+        }
         public (double[], double, int) Solve()
         {
             Random rnd = new Random();
