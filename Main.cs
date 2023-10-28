@@ -8,6 +8,26 @@ namespace SnakeOptimization
 {
     public class Main
     {
+
+        public Main() {
+            double[] range_1 = { -5.12, 5 };
+            double[] range_2 = { 5.12, 5 };
+            SnakeOptimization snakeOptimization = new SnakeOptimization(80, 80, rastriginFunction, 5, range_1, range_2);
+            var result = snakeOptimization.Solve();
+
+            double[] array = result.Item1;
+            double value = result.Item2;
+            int number = result.Item3;
+
+            Console.WriteLine("Array:");
+            foreach (double item in array)
+            {
+                Console.WriteLine(item);
+            }
+
+            Console.WriteLine("Value: " + value);
+            Console.WriteLine("Number: " + number);
+        }
         public static double rastriginFunction(params double[] X)
         {
 
@@ -85,5 +105,6 @@ namespace SnakeOptimization
             return Math.Pow(x * x + y - 11, 2) + Math.Pow(x + y * y - 7, 2);
 
         }
+
     }
 }
