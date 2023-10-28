@@ -8,15 +8,15 @@
         private int T { get; set; }
         private Funkcja funkcja { get; set; }
         private int dim { get; set; }
-        private double[] xmin { get; set; }
-        private double[] xmax { get; set; }
+        private double xmin { get; set; }
+        private double xmax { get; set; }
 
         public string Name { get; set; }
         public double[] XBest { get; set; }
         public double FBest { get; set; }
         public int NumberOfEvaluationFitnessFunction { get; set; }
 
-        public SnakeOptimization(int _N, int _T, Funkcja _funkcja, int _dim, double[] _xmin, double[] _xmax)
+        public SnakeOptimization(int _N, int _T, Funkcja _funkcja, int _dim, double _xmin, double _xmax)
         {
             this.N = _N;
             this.T = _T;
@@ -53,7 +53,7 @@
                 X[i] = new double[dim];
                 for (int j = 0; j < dim; j++)
                 {
-                    X[i][j] = xmin[j] + rnd.NextDouble() * (xmax[j] - xmin[j]);
+                    X[i][j] = xmin + rnd.NextDouble() * (xmax - xmin);
                 }
                 fitness[i] = funkcja(X[i]);
                 iFobj++;
@@ -112,7 +112,7 @@
                         double Am = Math.Exp(-male_fitness[randmid] / (male_fitness[i] + double.Epsilon));
                         for (int j = 0; j < dim; j++)
                         {
-                            male_positions[i][j] = randomMale_position[j] + flag * c2 * Am * ((xmax[j] - xmin[j]) * rnd.NextDouble() + xmin[j]);
+                            male_positions[i][j] = randomMale_position[j] + flag * c2 * Am * ((xmax - xmin) * rnd.NextDouble() + xmin);
                         }
                     }
 
@@ -126,7 +126,7 @@
                         double Af = Math.Exp(-female_fitness[randfid] / (female_fitness[i] + double.Epsilon));
                         for (int j = 0; j < dim; j++)
                         {
-                            female_positions[i][j] = randomFemale_position[j] + flag * c2 * Af * ((xmax[j] - xmin[j]) * rnd.NextDouble() + xmin[j]);
+                            female_positions[i][j] = randomFemale_position[j] + flag * c2 * Af * ((xmax - xmin) * rnd.NextDouble() + xmin);
                         }
                     }
                 }
@@ -223,8 +223,8 @@
                                 // Replace them
                                 for (int i = 0; i < dim; i++)
                                 {
-                                    male_positions[worstMale_fitValue_index][i] = xmin[i] + rnd.NextDouble() * (xmax[i] - xmin[i]);
-                                    female_positions[worstFemale_fitValue_index][i] = xmin[i] + rnd.NextDouble() * (xmax[i] - xmin[i]);
+                                    male_positions[worstMale_fitValue_index][i] = xmin + rnd.NextDouble() * (xmax - xmin);
+                                    female_positions[worstFemale_fitValue_index][i] = xmin + rnd.NextDouble() * (xmax - xmin);
                                 }
                             }
                         }
@@ -235,13 +235,13 @@
                 {
                     for (int j = 0; j < dim; j++)
                     {
-                        if (male_positions[i][j] > xmax[j])
+                        if (male_positions[i][j] > xmax)
                         {
-                            male_positions[i][j] = xmax[j];
+                            male_positions[i][j] = xmax;
                         }
-                        if (male_positions[i][j] < xmin[j])
+                        if (male_positions[i][j] < xmin)
                         {
-                            male_positions[i][j] = xmin[j];
+                            male_positions[i][j] = xmin;
                         }
                     }
                     double y = funkcja(male_positions[i]);
@@ -258,13 +258,13 @@
                 {
                     for (int j = 0; j < dim; j++)
                     {
-                        if (female_positions[i][j] > xmax[j])
+                        if (female_positions[i][j] > xmax)
                         {
-                            female_positions[i][j] = xmax[j];
+                            female_positions[i][j] = xmax;
                         }
-                        if (female_positions[i][j] < xmin[j])
+                        if (female_positions[i][j] < xmin)
                         {
-                            female_positions[i][j] = xmin[j];
+                            female_positions[i][j] = xmin;
                         }
                     }
 
