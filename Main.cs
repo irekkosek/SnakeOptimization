@@ -10,7 +10,10 @@ namespace SnakeOptimization
     {
 
         public Main() {
-            SnakeOptimization snakeOptimization = new(80, 80, rastriginFunction, 5, -5.12, 5.12);
+            double[] range_1 = Enumerable.Repeat(-5.12, 5).ToArray();
+            double[] range_2 = Enumerable.Repeat(5.12, 5).ToArray();
+
+            SnakeOptimization snakeOptimization = new(80, 80, rastriginFunction, 5, range_1, range_2);
             var result = snakeOptimization.Solve();
 
             double[] array = result.Item1;
