@@ -84,7 +84,6 @@
            double[] gbest = new double[T];
            double[] vbest = new double[T];
 
-
             for (int t = 1; t <= T; t++)
             {
                 // Calculate temperature
