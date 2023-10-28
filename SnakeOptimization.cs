@@ -80,8 +80,8 @@ namespace SnakeOptimization
 
             double[][] Xnewm = new double[Nm][];
             double[][] Xnewf = new double[Nf][];
-            double[] gbest = new double[T];
-            double[] vbest = new double[T];
+            double[] fbest = new double[T]; //jak sie zmieniała wartość funkcji celu
+            double[] xbest = new double[T]; //jak się zmieniały x
 
             for (int t = 1; t <= T; t++)
             {
@@ -104,7 +104,7 @@ namespace SnakeOptimization
                         double Am = Math.Exp(-fitnessm[randmid] / (fitnessm[i] + double.Epsilon));
                         for (int j = 0; j < dim; j++)
                         {
-                            Xnewm[i][j] = Xrandm[j] + flag * c2 * Am * ((xmax[j] - xmin[j]) * random.NextDouble() + xmin[j]);
+                            Xnewm[i][j] = Xrandm[j] + flag * c2 * Am * ((xmax[j] - xmin[j]) * rnd.NextDouble() + xmin[j]);
                         }
                     }
 
@@ -117,178 +117,9 @@ namespace SnakeOptimization
                         double Af = Math.Exp(-fitnessf[randfid] / (fitnessf[i] + double.Epsilon));
                         for (int j = 0; j < dim; j++)
                         {
-                            Xnewf[i][j] = Xrandf[j] + flag * c2 * Af * ((xmax[j] - xmin[j]) * random.NextDouble() + xmin[j]);
+                            Xnewf[i][j] = Xrandf[j] + flag * c2 * Af * ((xmax[j] - xmin[j]) * rnd.NextDouble() + xmin[j]);
                         }
                     }
-                }
-                else
-                {
-                    // Exploitation phase (food exists)
-                    if (Temp > treshold2)
-                    {
-                        // Hot
-                        for (int i = 0; i < Nm; i++)
-                        {
-                            int flagid = (int)(2 * rnd.NextDouble());
-                            double flag = vecflag[flagid];
-                            for (int j = 0; j < dim; j++)
-                            {
-                                Xnewm[i][j] = Xfood[j] + flag * c3 * Temp * random.NextDouble() * (Xfood[j] - Xm[i][j]);
-                            }
-                        }
-
-                        for (int i = 0; i < nf; i++)
-                        {
-                            int flagid = (int)(2 * random.NextDouble());
-                            double flag = vecflag[flagid];
-                            for (int j = 0; j < dim; j++)
-                            {
-                                Xnewf[i][j] = Xfood[j] + flag * c3 * Temp * random.NextDouble() * (Xfood[j] - Xf[i][j]);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (random.NextDouble() > 0.6)
-                        {
-                            // Fight
-                            for (int i = 0; i < nm; i++)
-                            {
-                                double fm = Math.Exp(-fbestv / (fitnessm[i] + double.Epsilon));
-                                for (int j = 0; j < dim; j++)
-                                {
-                                    Xnewm[i][j] = Xm[i][j] + c3 * fm * random.NextDouble() * (Q * Xbestf[j] - Xm[i][j]);
-                                }
-                            }
-
-                            for (int i = 0; i < nf; i++)
-                            {
-                                double ff = Math.Exp(-mbestv / (fitnessf[i] + double.Epsilon));
-                                for (int j = 0; j < dim; j++)
-                                {
-                                    Xnewf[i][j] = Xf[i][j] + c3 * ff * random.NextDouble() * (Q * Xbestm[j] - Xf[i][j]);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // Mating
-                            for (int i = 0; i < nm; i++)
-                            {
-                                double mm = Math.Exp(-fitnessf[i] / (fitnessm[i] + double.Epsilon));
-                                for (int j = 0; j < dim; j++)
-                                {
-                                    Xnewm[i][j] = Xm[i][j] + c3 * mm * random.NextDouble() * (Q * Xf[i][j] - Xm[i][j]);
-                                }
-                            }
-
-                            for (int i = 0; i < nf; i++)
-                            {
-                                double mf = Math.Exp(-fitnessm[i] / (fitnessf[i] + double.Epsilon));
-                                for (int j = 0; j < dim; j++)
-                                {
-                                    Xnewf[i][j] = Xf[i][j] + c3 * mf * random.NextDouble() * (Q * Xm[i][j] - Xf[i][j]);
-                                }
-                            }
-
-                            int flagid = (int)(2 * random.NextDouble());
-                            double egg = vecflag[flagid];
-                            if (egg == 1)
-                            {
-                                int mworstp = Array.IndexOf(fitnessm, fitnessm.Max());
-                                int fworstp = Array.IndexOf(fitnessf, fitnessf.Max());
-                                for (int i = 0; i < dim; i++)
-                                {
-                                    Xnewm[mworstp][i] = xmin[i] + random.NextDouble() * (xmax[i] - xmin[i]);
-                                    Xnewf[fworstp][i] = xmin[i] + random.NextDouble() * (xmax[i] - xmin[i]);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                for (int i = 0; i < nm; i++)
-                {
-                    for (int j = 0; j < dim; j++)
-                    {
-                        if (Xnewm[i][j] > xmax[j])
-                        {
-                            Xnewm[i][j] = xmax[j];
-                        }
-                        if (Xnewm[i][j] < xmin[j])
-                        {
-                            Xnewm[i][j] = xmin[j];
-                        }
-                    }
-
-                    double y = fobj(Xnewm[i]);
-                    iFobj++;
-                    if (y < fitnessm[i])
-                    {
-                        fitnessm[i] = y;
-                        Xm[i] = Xnewm[i].ToArray();
-                    }
-                }
-
-                double Mbestv = fitnessm.Min();
-                int Mbestp = Array.IndexOf(fitnessm, Mbestv);
-
-                for (int i = 0; i < nf; i++)
-                {
-                    for (int j = 0; j < dim; j++)
-                    {
-                        if (Xnewf[i][j] > xmax[j])
-                        {
-                            Xnewf[i][j] = xmax[j];
-                        }
-                        if (Xnewf[i][j] < xmin[j])
-                        {
-                            Xnewf[i][j] = xmin[j];
-                        }
-                    }
-
-                    double y = fobj(Xnewf[i]);
-                    iFobj++;
-                    if (y < fitnessf[i])
-                    {
-                        fitnessf[i] = y;
-                        Xf[i] = Xnewf[i].ToArray();
-                    }
-                }
-
-                double Fbestv = fitnessf.Min();
-                int Fbestp = Array.IndexOf(fitnessf, Fbestv);
-
-                if (Mbestv < mbestv)
-                {
-                    Xbestm = Xm[Mbestp].ToArray();
-                    mbestv = Mbestv;
-                }
-
-                if (Fbestv < fbestv)
-                {
-                    Xbestf = Xf[Fbestp].ToArray();
-                    fbestv = Fbestv;
-                }
-
-                if (Mbestv < Fbestv)
-                {
-                    gbest[t] = Mbestv;
-                    vbest[t] = Xm[Mbestp].ToArray();
-                }
-                else
-                {
-                    gbest[t] = Fbestv;
-                    vbest[t] = Xf[Fbestp].ToArray();
-                }
-
-                if (mbestv < fbestv)
-                {
-                    Xfood = Xbestm.ToArray();
-                }
-                else
-                {
-                    Xfood = Xbestf.ToArray();
                 }
             }
         }
