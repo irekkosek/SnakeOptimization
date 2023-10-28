@@ -8,15 +8,15 @@
         private int T { get; set; }
         private Funkcja funkcja { get; set; }
         private int dim { get; set; }
-        private double[] xmin { get; set; }
-        private double[] xmax { get; set; }
+        private double xmin { get; set; }
+        private double xmax { get; set; }
 
         public string Name { get; set; }
         public double[] XBest { get; set; }
         public double FBest { get; set; }
         public int NumberOfEvaluationFitnessFunction { get; set; }
 
-        public SnakeOptimization(int _N, int _T, Funkcja _funkcja, int _dim, double[] _xmin, double[] _xmax)
+        public SnakeOptimization(int _N, int _T, Funkcja _funkcja, int _dim, double _xmin, double _xmax)
         {
             this.N = _N;
             this.T = _T;
@@ -28,9 +28,12 @@
             this.XBest = new double[dim];
         }
 
-        public double[] Solve()
+        public (double[], double, int) Solve()
         {
             Random rnd = new Random();
+
+            // searching for values
+            double bestFitValue = 0;
 
             // constant variables
             double[] vecflag = { 1, -1 };
@@ -39,6 +42,7 @@
             double c1 = 0.5;
             double c2 = 0.05;
             double c3 = 2;
+            int iFobj = 0;
 
             double[][] X = new double[N][];
             double[] fitness = new double[N];
@@ -49,10 +53,16 @@
                 X[i] = new double[dim];
                 for (int j = 0; j < dim; j++)
                 {
-                    X[i][j] = xmin[j] + rnd.NextDouble() * (xmax[j] - xmin[j]);
+                    X[i][j] = xmin + rnd.NextDouble() * (xmax - xmin);
                 }
                 fitness[i] = funkcja(X[i]);
+                iFobj++;
             }
+
+            // Get food position (Ffood)
+            double bestSnake = fitness.Min();
+            int bestSnake_index = Array.IndexOf(fitness, bestSnake);
+            double[] food_position = X[bestSnake_index].ToArray();
 
             // Divide the swarm
             int Nm = N / 2;
@@ -73,16 +83,16 @@
             double[] bestFemale = Xf[bestFemale_fitValue_index].ToArray();
 
 
-            // Get food position (Ffood)
-            double bestSnake = fitness.Min();
-            int bestSnake_index = Array.IndexOf(fitness, bestSnake);
-            double[] food_position = X[bestSnake_index].ToArray();
-
-
-           double[][] male_positions = new double[Nm][];
-           double[][] female_positions = new double[Nf][];
-           double[] gbest = new double[T];
-           double[] vbest = new double[T];
+            double[][] male_positions = new double[Nm][];
+            for (int i = 0; i < Nm; i++)
+            {
+                male_positions[i] = new double[dim];
+            }
+            double[][] female_positions = new double[Nf][];
+            for (int i = 0; i < Nf; i++)
+            {
+                female_positions[i] = new double[dim];
+            }
 
             for (int t = 1; t <= T; t++)
             {
@@ -110,7 +120,7 @@
                         double Am = Math.Exp(-male_fitness[randmid] / (male_fitness[i] + double.Epsilon));
                         for (int j = 0; j < dim; j++)
                         {
-                            male_positions[i][j] = randomMale_position[j] + flag * c2 * Am * ((xmax[j] - xmin[j]) * rnd.NextDouble() + xmin[j]);
+                            male_positions[i][j] = randomMale_position[j] + flag * c2 * Am * ((xmax - xmin) * rnd.NextDouble() + xmin);
                         }
                     }
 
@@ -124,7 +134,7 @@
                         double Af = Math.Exp(-female_fitness[randfid] / (female_fitness[i] + double.Epsilon));
                         for (int j = 0; j < dim; j++)
                         {
-                            female_positions[i][j] = randomFemale_position[j] + flag * c2 * Af * ((xmax[j] - xmin[j]) * rnd.NextDouble() + xmin[j]);
+                            female_positions[i][j] = randomFemale_position[j] + flag * c2 * Af * ((xmax - xmin) * rnd.NextDouble() + xmin);
                         }
                     }
                 }
@@ -158,7 +168,7 @@
                             }
                         }
                     }
-                    else
+                    else // Cold
                     {
                         if (rnd.NextDouble() > 0.6)
                         {
@@ -221,8 +231,8 @@
                                 // Replace them
                                 for (int i = 0; i < dim; i++)
                                 {
-                                    male_positions[worstMale_fitValue_index][i] = xmin[i] + rnd.NextDouble() * (xmax[i] - xmin[i]);
-                                    female_positions[worstFemale_fitValue_index][i] = xmin[i] + rnd.NextDouble() * (xmax[i] - xmin[i]);
+                                    male_positions[worstMale_fitValue_index][i] = xmin + rnd.NextDouble() * (xmax - xmin);
+                                    female_positions[worstFemale_fitValue_index][i] = xmin + rnd.NextDouble() * (xmax - xmin);
                                 }
                             }
                         }
@@ -233,17 +243,17 @@
                 {
                     for (int j = 0; j < dim; j++)
                     {
-                        if (male_positions[i][j] > xmax[j])
+                        if (male_positions[i][j] > xmax)
                         {
-                            male_positions[i][j] = xmax[j];
+                            male_positions[i][j] = xmax;
                         }
-                        if (male_positions[i][j] < xmin[j])
+                        if (male_positions[i][j] < xmin)
                         {
-                            male_positions[i][j] = xmin[j];
+                            male_positions[i][j] = xmin;
                         }
                     }
-
                     double y = funkcja(male_positions[i]);
+                    iFobj++;
                     if (y < male_fitness[i])
                     {
                         male_fitness[i] = y;
@@ -251,30 +261,32 @@
                     }
                 }
 
-                double bestMatingMale_fitValue = male_fitness.Min();
-                int bestMatingMale_fitValue_index = Array.IndexOf(male_fitness, bestMatingMale_fitValue);
 
                 for (int i = 0; i < Nf; i++)
                 {
                     for (int j = 0; j < dim; j++)
                     {
-                        if (female_positions[i][j] > xmax[j])
+                        if (female_positions[i][j] > xmax)
                         {
-                            female_positions[i][j] = xmax[j];
+                            female_positions[i][j] = xmax;
                         }
-                        if (female_positions[i][j] < xmin[j])
+                        if (female_positions[i][j] < xmin)
                         {
-                            female_positions[i][j] = xmin[j];
+                            female_positions[i][j] = xmin;
                         }
                     }
 
                     double y = funkcja(female_positions[i]);
+                    iFobj++;
                     if (y < female_fitness[i])
                     {
                         female_fitness[i] = y;
                         Xf[i] = female_positions[i].ToArray();
                     }
                 }
+
+                double bestMatingMale_fitValue = male_fitness.Min();
+                int bestMatingMale_fitValue_index = Array.IndexOf(male_fitness, bestMatingMale_fitValue);
 
                 double bestMatingFemale_fitValue = female_fitness.Min();
                 int bestMatingFemale_fitValue_index = Array.IndexOf(female_fitness, bestMatingFemale_fitValue);
@@ -291,26 +303,20 @@
                     bestFemale_fitValue = bestMatingFemale_fitValue;
                 }
 
-                if (bestMatingMale_fitValue < bestMatingFemale_fitValue)
-                {
-                    gbest[t] = bestMatingMale_fitValue;
-                }
-                else
-                {
-                    gbest[t] = bestMatingFemale_fitValue;
-                }
-
                 if (bestMale_fitValue < bestFemale_fitValue)
                 {
+                    bestFitValue = bestMale_fitValue;
                     food_position = bestMale.ToArray();
                 }
                 else
                 {
+                    bestFitValue = bestFemale_fitValue;
                     food_position = bestFemale.ToArray();
                 }
             }
-            XBest = food_position;
-            return XBest; // best snake
+           
+
+            return (food_position, bestFitValue, iFobj);
         }
     }
 }
