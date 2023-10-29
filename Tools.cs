@@ -14,5 +14,21 @@ namespace SnakeOptimization
                 array[i] = value;
             return array;
         }
+        
+        public static (double, double) CoefOfVariation(double[] array)
+        {
+            double mean = 0;
+            for (int i = 0; i < array.Length; i++)
+                mean += array[i];
+            mean /= array.Length;
+            double stdDev = 0;
+            for (int i = 0; i < array.Length; i++)
+                stdDev += (array[i] - mean) * (array[i] - mean);
+            stdDev /= array.Length;
+            stdDev = Math.Sqrt(stdDev);
+            return (stdDev / mean, stdDev);
+        }
+
     }
+
 }
