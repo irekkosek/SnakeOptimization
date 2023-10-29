@@ -55,6 +55,8 @@ namespace SnakeOptimization
 
                             // wynik na liście
                             testResults.Add(testResult);
+                            //log formatted result to stdout
+                            Console.WriteLine($"TestFunctionName: {testResult.TestFunctionName}, NumberOfParameters: {testResult.NumberOfParameters}, NumberOfIterations: {testResult.NumberOfIterations}, PopulationSize: {testResult.PopulationSize}, FoundMinimum: {testResult.FoundMinimum}, StdDevParameters: {testResult.StdDevParameters}, ObjectiveValue: {testResult.ObjectiveValue}, StdDevObjectiveValue: {testResult.StdDevObjectiveValue}");
                             //TODO: add logic that will ~~gather all the data from each~~ run and then
                             //decide which one is the best and the worst (based on fval)
                             //data can be easily gathered using method inside the SnakeOptimization class that gathers needed information:
