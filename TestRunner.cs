@@ -38,7 +38,8 @@ namespace SnakeOptimization
                             double bestFitValue;
                             int iFobj;
 
-                            (food_position, bestFitValue, iFobj) = snakeOptimization.Solve();
+                            (food_position, bestFitValue, iFobj) = snakeOptimization.Solve(); //TODO: add {Xfood, fval, gbest, vbest, iFobj}
+                            //to returned values
 
                             TestResult testResult = new TestResult
                             {
@@ -54,6 +55,10 @@ namespace SnakeOptimization
 
                             // wynik na liście
                             testResults.Add(testResult);
+                            //TODO: add logic that will ~~gather all the data from each~~ run and then
+                            //decide which one is the best and the worst (based on fval)
+                            //data can be easily gathered using method inside the SnakeOptimization class that gathers needed information:
+                            //result=snakeOptimization.Result()
                         }
                     }
                 }
@@ -64,7 +69,8 @@ namespace SnakeOptimization
             using (var writer = new StreamWriter(reportFilePath))
             using (var csv = new CsvWriter(writer, config))
             {
-                csv.WriteRecords(testResults);
+                csv.WriteRecords(testResults); 
+                // based on table from the assignment (see https://platforma.polsl.pl/rms/pluginfile.php/235440/mod_resource/content/1/Heurystyki___instrukcja_do_test%C3%B3w.pdf)
             }
         }
     }
