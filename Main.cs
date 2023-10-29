@@ -64,7 +64,8 @@ namespace SnakeOptimization
                     }
                 }
             }
+            TestRunner.RunTests();
         }
-
+        
     }
 }
