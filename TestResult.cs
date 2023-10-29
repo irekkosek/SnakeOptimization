@@ -14,8 +14,12 @@ namespace SnakeOptimization
         public int NumberOfIterations { get; set; }
         public int PopulationSize { get; set; }
         public double[] FoundMinimum { get; set; }
-        public double StdDevParameters { get; set; }
+        public string FoundMinimumString { get; set; }
+        public string CoeffOfVarParameters { get; set; }
+        public string StdDevParameters { get; set; }
         public double ObjectiveValue { get; set; }
+        public double CoeffOfVarObjectiveValue { get; set; }
         public double StdDevObjectiveValue { get; set; }
+
     }
 }

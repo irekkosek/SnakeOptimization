@@ -62,9 +62,9 @@ namespace SnakeOptimization
                                 NumberOfIterations = tValue, //or iFobj?
                                 PopulationSize = nValue,
                                 FoundMinimum = food_position,
-                                StdDevParameters = 0, // TODO odchylenie standardowe parametrów
+                                FoundMinimumString = $"[{String.Join(", ",food_position)}]",
                                 ObjectiveValue = bestFitValue, //wartość funkcji celu
-                                StdDevObjectiveValue = 0, // TODO odchylenie standardowe wartości funkcji celu
+                                CoeffOfVarObjectiveValue = 0
                             };
 
 
@@ -84,10 +84,37 @@ namespace SnakeOptimization
 
 
                             //log formatted result to stdout
-                            Console.WriteLine($"TestFunctionName: {testResult.TestFunctionName}, NumberOfParameters: {testResult.NumberOfParameters}, NumberOfIterations: {testResult.NumberOfIterations}, PopulationSize: {testResult.PopulationSize}, FoundMinimum: {testResult.FoundMinimum}, StdDevParameters: {testResult.StdDevParameters}, ObjectiveValue: {testResult.ObjectiveValue}, StdDevObjectiveValue: {testResult.StdDevObjectiveValue}");
-
-      
+                            Console.WriteLine($"TestFunctionName: {testResult.TestFunctionName}, NumberOfParameters: {testResult.NumberOfParameters}, NumberOfIterations: {testResult.NumberOfIterations}, PopulationSize: {testResult.PopulationSize}, FoundMinimum: {testResult.FoundMinimum}, CoeffOfVarParameters: {testResult.CoeffOfVarParameters}, ObjectiveValue: {testResult.ObjectiveValue}, CoeffOfVarObjectiveValue: {testResult.CoeffOfVarObjectiveValue}");
                         }
+
+                            // calculate CoeffOfVarObjectiveValue and CoeffOfVarParameters for topBestFitValueIndex and worstBestFitValueIndex
+                            double coefVarObjectiveValue, stdDevObjectiveValue;
+                            (coefVarObjectiveValue, stdDevObjectiveValue)=Tools.CoefOfVariation(LocalIterationsResults.Select(x => x.ObjectiveValue).ToArray());
+
+                            LocalIterationsResults[topBestFitValueIndex].CoeffOfVarObjectiveValue = coefVarObjectiveValue;
+                            LocalIterationsResults[topBestFitValueIndex].StdDevObjectiveValue = stdDevObjectiveValue;
+                            
+                            LocalIterationsResults[worstBestFitValueIndex].CoeffOfVarObjectiveValue = coefVarObjectiveValue;
+                            LocalIterationsResults[worstBestFitValueIndex].StdDevObjectiveValue = stdDevObjectiveValue;
+                            
+                            var CoefOfVarParameters = new List<double>();
+                            var stdDevParameters = new List<double>();
+                            for (int i = 0; i < LocalIterationsResults[0].FoundMinimum.Length; i++)
+                            {  
+                                double coefOfVar, stdDev;
+                                (coefOfVar, stdDev)=Tools.CoefOfVariation(LocalIterationsResults.Select(x => x.FoundMinimum[i]).ToArray());
+                                CoefOfVarParameters.Add(coefOfVar);
+                                stdDevParameters.Add(stdDev);
+                            }
+
+                            LocalIterationsResults[topBestFitValueIndex].CoeffOfVarParameters = $"[{String.Join(", ",CoefOfVarParameters)}]";
+                            LocalIterationsResults[topBestFitValueIndex].StdDevParameters = $"[{String.Join(", ",stdDevParameters)}]";
+
+                            LocalIterationsResults[worstBestFitValueIndex].CoeffOfVarParameters = $"[{String.Join(", ",CoefOfVarParameters)}]";
+                            LocalIterationsResults[worstBestFitValueIndex].StdDevParameters = $"[{String.Join(", ",stdDevParameters)}]";
+
+                            //log CoeffOfVarParameters to stdout
+                            // Console.WriteLine($"CoeffOfVarParameters:[{String.Join(", ",CoefOfVarParameters)}]");
                             // assign best and worst results to testResult
                             testResults.Add(LocalIterationsResults[topBestFitValueIndex]);
                             testResults.Add(LocalIterationsResults[worstBestFitValueIndex]);
