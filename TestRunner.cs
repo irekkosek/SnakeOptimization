@@ -42,8 +42,11 @@ namespace SnakeOptimization
                             double[] food_position;
                             double bestFitValue;
                             int iFobj;
-
+                            //masure execution time of snakeOptimization.Solve() and print it to stdout
+                            var watch = System.Diagnostics.Stopwatch.StartNew();
                             (food_position, bestFitValue, iFobj) = snakeOptimization.Solve(); //TODO: add {Xfood, fval, gbest, vbest, iFobj}
+                            watch.Stop();
+                            var elapsedMs = watch.ElapsedMilliseconds;
                             //to returned values
                             //if topBestfitValue unusigned then assign it to bestFitValue
                             if (first_pass)
@@ -84,8 +87,9 @@ namespace SnakeOptimization
 
 
                             //log formatted result to stdout
-                            Console.WriteLine($"TestFunctionName: {testResult.TestFunctionName}, NumberOfParameters: {testResult.NumberOfParameters}, NumberOfIterations: {testResult.NumberOfIterations}, PopulationSize: {testResult.PopulationSize}, FoundMinimum: {testResult.FoundMinimum}, CoeffOfVarParameters: {testResult.CoeffOfVarParameters}, ObjectiveValue: {testResult.ObjectiveValue}, CoeffOfVarObjectiveValue: {testResult.CoeffOfVarObjectiveValue}");
-                        }
+                            Console.WriteLine($"TestFunctionName: {testResult.TestFunctionName}, NumberOfParameters: {testResult.NumberOfParameters}, NumberOfIterations: {testResult.NumberOfIterations}, PopulationSize: {testResult.PopulationSize}, FoundMinimum: {testResult.FoundMinimumString}, CoeffOfVarParameters: {testResult.CoeffOfVarParameters}, ObjectiveValue: {testResult.ObjectiveValue}, CoeffOfVarObjectiveValue: {testResult.CoeffOfVarObjectiveValue}");
+                            Console.WriteLine($"Execution time of single function call: {elapsedMs} ms");
+                        }   
 
                             // calculate CoeffOfVarObjectiveValue and CoeffOfVarParameters for topBestFitValueIndex and worstBestFitValueIndex
                             double coefVarObjectiveValue, stdDevObjectiveValue;
