@@ -66,7 +66,7 @@ namespace SnakeOptimization
                                 PopulationSize = nValue,
                                 FoundMinimum = food_position,
                                 FoundMinimumString = $"[{String.Join("; ",food_position)}]",
-                                ObjectiveValue = bestFitValue, //wartość funkcji celu
+                                MinObjectiveValue = bestFitValue, //wartość funkcji celu
                                 CoeffOfVarObjectiveValue = 0,
                                 NumberOfFobjEvaluation = iFobj,
                                 ExecutionTime = elapsedMs.ToString()
@@ -89,13 +89,13 @@ namespace SnakeOptimization
 
 
                             //log formatted result to stdout
-                            Console.WriteLine($"TestFunctionName: {testResult.TestFunctionName}, NumberOfParameters: {testResult.NumberOfParameters}, NumberOfIterations: {testResult.NumberOfIterations}, PopulationSize: {testResult.PopulationSize}, FoundMinimum: {testResult.FoundMinimumString}, CoeffOfVarParameters: {testResult.CoeffOfVarParameters}, ObjectiveValue: {testResult.ObjectiveValue}, CoeffOfVarObjectiveValue: {testResult.CoeffOfVarObjectiveValue}");
+                            Console.WriteLine($"TestFunctionName: {testResult.TestFunctionName}, NumberOfParameters: {testResult.NumberOfParameters}, NumberOfIterations: {testResult.NumberOfIterations}, PopulationSize: {testResult.PopulationSize}, FoundMinimum: {testResult.FoundMinimumString}, CoeffOfVarParameters: {testResult.CoeffOfVarParameters}, ObjectiveValue: {testResult.MinObjectiveValue}, CoeffOfVarObjectiveValue: {testResult.CoeffOfVarObjectiveValue}");
                             Console.WriteLine($"Execution time of single function call: {elapsedMs} ms");
                         }   
 
                             // calculate CoeffOfVarObjectiveValue and CoeffOfVarParameters for topBestFitValueIndex and worstBestFitValueIndex
                             double coefVarObjectiveValue, stdDevObjectiveValue;
-                            (coefVarObjectiveValue, stdDevObjectiveValue)=Tools.CoefOfVariation(LocalIterationsResults.Select(x => x.ObjectiveValue).ToArray());
+                            (coefVarObjectiveValue, stdDevObjectiveValue)=Tools.CoefOfVariation(LocalIterationsResults.Select(x => x.MinObjectiveValue).ToArray());
 
                             LocalIterationsResults[topBestFitValueIndex].CoeffOfVarObjectiveValue = coefVarObjectiveValue;
                             LocalIterationsResults[topBestFitValueIndex].StdDevObjectiveValue = stdDevObjectiveValue;
@@ -122,8 +122,10 @@ namespace SnakeOptimization
                             //log CoeffOfVarParameters to stdout
                             // Console.WriteLine($"CoeffOfVarParameters:[{String.Join(", ",CoefOfVarParameters)}]");
                             // assign best and worst results to testResult
+                            LocalIterationsResults[topBestFitValueIndex].MaxObjectiveValue = topBestFitValue;
+                            LocalIterationsResults[topBestFitValueIndex].MinObjectiveValue = worstBestFitValue;
+
                             testResults.Add(LocalIterationsResults[topBestFitValueIndex]);
-                            testResults.Add(LocalIterationsResults[worstBestFitValueIndex]);
                     }
                 }
             }
