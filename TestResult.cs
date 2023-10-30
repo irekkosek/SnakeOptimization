@@ -20,6 +20,8 @@ namespace SnakeOptimization
         public double ObjectiveValue { get; set; }
         public double CoeffOfVarObjectiveValue { get; set; }
         public double StdDevObjectiveValue { get; set; }
+        public int NumberOfFobjEvaluation { get; set; }
+        public string ExecutionTime { get; set; }
 
     }
 }

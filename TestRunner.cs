@@ -65,9 +65,11 @@ namespace SnakeOptimization
                                 NumberOfIterations = tValue, //or iFobj?
                                 PopulationSize = nValue,
                                 FoundMinimum = food_position,
-                                FoundMinimumString = $"[{String.Join(", ",food_position)}]",
+                                FoundMinimumString = $"[{String.Join("; ",food_position)}]",
                                 ObjectiveValue = bestFitValue, //wartość funkcji celu
-                                CoeffOfVarObjectiveValue = 0
+                                CoeffOfVarObjectiveValue = 0,
+                                NumberOfFobjEvaluation = iFobj,
+                                ExecutionTime = elapsedMs.ToString()
                             };
 
 
@@ -111,11 +113,11 @@ namespace SnakeOptimization
                                 stdDevParameters.Add(stdDev);
                             }
 
-                            LocalIterationsResults[topBestFitValueIndex].CoeffOfVarParameters = $"[{String.Join(", ",CoefOfVarParameters)}]";
-                            LocalIterationsResults[topBestFitValueIndex].StdDevParameters = $"[{String.Join(", ",stdDevParameters)}]";
+                            LocalIterationsResults[topBestFitValueIndex].CoeffOfVarParameters = $"[{String.Join("; ",CoefOfVarParameters)}]";
+                            LocalIterationsResults[topBestFitValueIndex].StdDevParameters = $"[{String.Join("; ",stdDevParameters)}]";
 
                             LocalIterationsResults[worstBestFitValueIndex].CoeffOfVarParameters = $"[{String.Join(", ",CoefOfVarParameters)}]";
-                            LocalIterationsResults[worstBestFitValueIndex].StdDevParameters = $"[{String.Join(", ",stdDevParameters)}]";
+                            LocalIterationsResults[worstBestFitValueIndex].StdDevParameters = $"[{String.Join("; ",stdDevParameters)}]";
 
                             //log CoeffOfVarParameters to stdout
                             // Console.WriteLine($"CoeffOfVarParameters:[{String.Join(", ",CoefOfVarParameters)}]");

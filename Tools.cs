@@ -26,7 +26,11 @@ namespace SnakeOptimization
                 stdDev += (array[i] - mean) * (array[i] - mean);
             stdDev /= array.Length;
             stdDev = Math.Sqrt(stdDev);
-            return (stdDev / mean, stdDev);
+            if (stdDev != 0)
+                return ((stdDev / mean) * 100, stdDev);
+            else
+                return (0, stdDev);
+
         }
 
     }
